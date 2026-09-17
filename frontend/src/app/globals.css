@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-maroon: #7A1F2B;
+  --sacred-saffron: #E98B18;
+  --warm-gold: #D6A43B;
+  --dark-charcoal: #222222;
+  --warm-cream: #FFF9EF;
+  --soft-beige: #F6EFE4;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color: #222222;
+    background-color: #FFFFFF;
+  }
+
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: #E98B18;
+    color: #222222;
+  }
+}
+
+/* Custom micro-interactions and animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
