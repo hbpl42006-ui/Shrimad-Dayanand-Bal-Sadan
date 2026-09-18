@@ -8,6 +8,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import LightboxModal from '@/components/shared/LightboxModal';
 import { GalleryImage } from '@/lib/types';
 import { fallbackGallery } from '@/lib/api/fallbackData';
+import { siteApi } from '@/lib/api';
 
 const categories = [
   { label: 'All Photos', key: 'all' },
@@ -27,8 +28,7 @@ export default function GalleryPage() {
 
   useEffect(() => {
     // In dev / production, fetch from live backend if available
-    fetch('http://localhost:8000/api/v1/gallery/')
-      .then(res => res.json())
+    siteApi.getGallery()
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           setImages(data);

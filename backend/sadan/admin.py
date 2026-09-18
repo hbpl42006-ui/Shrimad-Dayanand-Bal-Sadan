@@ -105,16 +105,65 @@ class GalleryAlbumAdmin(admin.ModelAdmin):
 
 @admin.register(GalleryImage)
 class GalleryImageAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'order', 'is_featured', 'image_preview')
+    list_display = ('title', 'category', 'order', 'is_featured', 'image_source_badge', 'image_preview')
     list_editable = ('category', 'order', 'is_featured')
-    search_fields = ('title', 'caption')
+    search_fields = ('title', 'caption', 'image')
     list_filter = ('category', 'is_featured')
+    readonly_fields = ('admin_preview',)
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('album', 'title', 'caption', 'category', 'order', 'is_featured')
+        }),
+        ('Image Source', {
+            'description': (
+                'Choose either to <strong>Upload an Image file</strong> from your computer OR specify an '
+                '<strong>Image URL / Existing Static Path</strong>. If both are provided, the uploaded image file takes priority.'
+            ),
+            'fields': ('uploaded_image', 'image', 'admin_preview')
+        }),
+    )
+
+    def image_source_badge(self, obj):
+        if obj.uploaded_image:
+            return format_html(
+                '<span style="background:#0284c7;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">'
+                'Uploaded File</span>'
+            )
+        elif obj.image:
+            return format_html(
+                '<span style="background:#4b5563;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">'
+                'URL / Path</span>'
+            )
+        return format_html('<span style="color:#ef4444;font-size:11px;font-weight:bold;">Missing</span>')
+    image_source_badge.short_description = "Source"
 
     def image_preview(self, obj):
-        if obj.image:
-            return format_html('<img src="{}" style="max-height: 45px; border-radius: 4px;" />', obj.image)
+        url = obj.resolved_image_url
+        if url:
+            return format_html(
+                '<a href="{}" target="_blank" rel="noopener noreferrer">'
+                '<img src="{}" style="height: 45px; width: 65px; object-fit: cover; border-radius: 4px; border: 1px solid #d1d5db;" />'
+                '</a>',
+                url, url
+            )
         return "-"
     image_preview.short_description = "Thumbnail"
+
+    def admin_preview(self, obj):
+        url = obj.resolved_image_url if obj and obj.pk else None
+        if url:
+            source_type = "Uploaded File" if obj.uploaded_image else "Static Path / URL"
+            return format_html(
+                '<div style="margin-top: 6px;">'
+                '<div style="margin-bottom: 6px; font-size: 12px; color: #4b5563;"><strong>Active Source:</strong> {}</div>'
+                '<img src="{}" style="max-height: 220px; max-width: 320px; object-fit: contain; border: 1px solid #d1d5db; border-radius: 6px; padding: 4px; background: #f9fafb;" /><br>'
+                '<a href="{}" target="_blank" rel="noopener noreferrer" style="display:inline-block; margin-top: 6px; font-size: 12px; color: #2563eb; text-decoration: underline;">Open image in new tab &rarr;</a>'
+                '</div>',
+                source_type, url, url
+            )
+        return format_html('<span style="color: #6b7280; font-style: italic;">No image selected yet. Upload an image file or enter a URL/path above.</span>')
+    admin_preview.short_description = "Current Image Preview"
 
 
 @admin.register(Event)

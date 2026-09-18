@@ -48,10 +48,43 @@ class DailyRoutineSerializer(serializers.ModelSerializer):
 
 class GalleryImageSerializer(serializers.ModelSerializer):
     category_display = serializers.CharField(source='get_category_display', read_only=True)
+    image = serializers.CharField(max_length=1000, required=False, allow_blank=True)
+    uploaded_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = GalleryImage
         fields = '__all__'
+
+    def validate(self, attrs):
+        uploaded_image = attrs.get('uploaded_image')
+        image = attrs.get('image')
+
+        # Support partial updates by falling back to existing instance values
+        if self.instance is not None:
+            if 'uploaded_image' not in attrs:
+                uploaded_image = self.instance.uploaded_image
+            if 'image' not in attrs:
+                image = self.instance.image
+
+        has_upload = bool(uploaded_image)
+        has_path = bool(image and str(image).strip())
+        if not has_upload and not has_path:
+            raise serializers.ValidationError(
+                "Please upload an image or provide an image URL/path."
+            )
+        return attrs
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.uploaded_image:
+            request = self.context.get('request')
+            if request is not None:
+                ret['image'] = request.build_absolute_uri(instance.uploaded_image.url)
+            else:
+                ret['image'] = instance.uploaded_image.url
+        else:
+            ret['image'] = instance.image or ""
+        return ret
 
 class GalleryAlbumSerializer(serializers.ModelSerializer):
     images = GalleryImageSerializer(many=True, read_only=True)

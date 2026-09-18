@@ -30,3 +30,6 @@ Desktop.ini
 # Misc
 *.log
 .vercel
+backend/media/gallery/
+media/gallery/
+

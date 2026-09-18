@@ -58,7 +58,7 @@ class HomeDataView(APIView):
             'programs': ProgramSerializer(programs, many=True).data,
             'facilities': FacilitySerializer(facilities, many=True).data,
             'routines': DailyRoutineSerializer(routines, many=True).data,
-            'gallery': GalleryImageSerializer(gallery, many=True).data,
+            'gallery': GalleryImageSerializer(gallery, many=True, context={'request': request}).data,
             'events': EventSerializer(events, many=True).data,
             'donation': DonationInformationSerializer(donation_info).data,
         })

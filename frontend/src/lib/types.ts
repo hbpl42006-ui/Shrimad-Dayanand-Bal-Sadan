@@ -104,6 +104,7 @@ export interface GalleryImage {
   id?: number;
   title: string;
   image: string;
+  uploaded_image?: string | null;
   caption: string;
   category: 'campus' | 'education' | 'vedic' | 'sports' | 'skills' | 'events' | 'brochure';
   category_display?: string;

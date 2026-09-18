@@ -1,6 +1,14 @@
 import uuid
 from django.db import models
 from django.utils.text import slugify
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+
+def validate_image_file_size(file):
+    max_size = 10 * 1024 * 1024  # 10 MB limit
+    if file.size > max_size:
+        raise ValidationError(f"Image file too large ({file.size / (1024 * 1024):.1f} MB). Maximum allowed size is 10 MB.")
+
 
 class SiteSettings(models.Model):
     organization_name = models.CharField(max_length=255, default="Shrimad Dayanand Bal Sadan")
@@ -217,7 +225,21 @@ class GalleryImage(models.Model):
 
     album = models.ForeignKey(GalleryAlbum, on_delete=models.SET_NULL, null=True, blank=True, related_name='images')
     title = models.CharField(max_length=255)
-    image = models.CharField(max_length=255)
+    uploaded_image = models.ImageField(
+        upload_to='gallery/%Y/%m/',
+        blank=True,
+        null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp']),
+            validate_image_file_size,
+        ],
+        help_text="Upload an image file directly from your computer (JPG, JPEG, PNG, WEBP up to 10 MB). Takes priority over image URL/path if provided."
+    )
+    image = models.CharField(
+        max_length=1000,
+        blank=True,
+        help_text="Existing static image path (e.g. /images/photos/campus_school_building.jpg) or external image URL (https://...). Used if no file is uploaded."
+    )
     caption = models.CharField(max_length=255, blank=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='campus')
     order = models.IntegerField(default=0)
@@ -227,6 +249,22 @@ class GalleryImage(models.Model):
         ordering = ['order']
         verbose_name = "Gallery Image"
         verbose_name_plural = "Gallery Images"
+
+    @property
+    def resolved_image_url(self):
+        if self.uploaded_image:
+            try:
+                return self.uploaded_image.url
+            except ValueError:
+                pass
+        return self.image or ""
+
+    def clean(self):
+        super().clean()
+        has_upload = bool(self.uploaded_image)
+        has_path = bool(self.image and self.image.strip())
+        if not has_upload and not has_path:
+            raise ValidationError("Please upload an image or provide an image URL/path.")
 
     def __str__(self):
         return self.title
