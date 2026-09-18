@@ -172,3 +172,18 @@ export interface HomeBundle {
   events: Event[];
   donation: DonationInformation;
 }
+
+export interface ContactFormData {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  website_check?: string;
+}
+
+export interface ContactSubmitResponse {
+  status: 'success' | 'error';
+  message: string;
+}
+

@@ -81,6 +81,9 @@ export const metadata: Metadata = {
     icon: '/favicon.ico',
     apple: '/images/logo.png',
   },
+  verification: {
+    google: '-fSgMxkTf8ltyLLfi02LdcvsfVfzjE-EScMJTrufJTY',
+  },
 };
 
 export default function RootLayout({

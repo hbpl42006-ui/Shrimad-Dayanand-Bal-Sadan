@@ -26,16 +26,21 @@ export default function ContactPage() {
 
     try {
       const res = await siteApi.submitContact(formData);
-      setStatus('success');
-      setFeedbackMessage(res.message);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-        website_check: '',
-      });
+      if (res.status === 'success') {
+        setStatus('success');
+        setFeedbackMessage(res.message);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: '',
+          website_check: '',
+        });
+      } else {
+        setStatus('error');
+        setFeedbackMessage(res.message);
+      }
     } catch {
       setStatus('error');
       setFeedbackMessage('Something went wrong submitting your message. Please reach out to us via phone or email directly.');
