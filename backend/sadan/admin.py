@@ -127,15 +127,20 @@ class GalleryImageAdmin(admin.ModelAdmin):
     def image_source_badge(self, obj):
         if obj.uploaded_image:
             return format_html(
-                '<span style="background:#0284c7;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">'
-                'Uploaded File</span>'
+                '<span style="background:#0284c7;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">{}</span>',
+                "Uploaded File"
             )
-        elif obj.image:
+
+        if obj.image:
             return format_html(
-                '<span style="background:#4b5563;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">'
-                'URL / Path</span>'
+                '<span style="background:#4b5563;color:#ffffff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;">{}</span>',
+                "URL / Path"
             )
-        return format_html('<span style="color:#ef4444;font-size:11px;font-weight:bold;">Missing</span>')
+
+        return format_html(
+            '<span style="color:#ef4444;font-size:11px;font-weight:bold;">{}</span>',
+            "Missing"
+        )
     image_source_badge.short_description = "Source"
 
     def image_preview(self, obj):
@@ -162,7 +167,10 @@ class GalleryImageAdmin(admin.ModelAdmin):
                 '</div>',
                 source_type, url, url
             )
-        return format_html('<span style="color: #6b7280; font-style: italic;">No image selected yet. Upload an image file or enter a URL/path above.</span>')
+        return format_html(
+            '<span style="color: #6b7280; font-style: italic;">{}</span>',
+            "No image selected yet. Upload an image file or enter a URL/path above."
+        )
     admin_preview.short_description = "Current Image Preview"
 
 
